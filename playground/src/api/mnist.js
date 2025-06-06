@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5000'
+const BASE_URL = 'http://localhost:5000/mnist'
 
 export const mnistApi = {
   /**
@@ -35,7 +35,7 @@ export const mnistApi = {
    * @returns {Promise}
    */
   async predict(imageData) {
-    const response = await fetch(`${BASE_URL}/mnist`, {
+    const response = await fetch(`${BASE_URL}/predict`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

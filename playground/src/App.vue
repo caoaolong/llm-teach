@@ -8,9 +8,10 @@ const activeIndex = ref('home')
     <el-header>
       <el-menu :default-active="activeIndex" mode="horizontal" router>
         <el-menu-item index="/">首页</el-menu-item>
-        <el-sub-menu index="/">
+        <el-sub-menu index="/dl">
           <template #title>深度学习</template>
           <el-menu-item index="/digital">手写数字识别</el-menu-item>
+          <el-menu-item index="/sentiment">文本情感识别</el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-header>

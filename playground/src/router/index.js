@@ -9,9 +9,20 @@ const router = createRouter({
       component: () => import('@/views/home/index.vue')
     },
     {
-      path: '/digital',
-      name: 'digital',
-      component: () => import('@/views/digital/index.vue')
+      path: '/dl',
+      name: 'dl',
+      children: [
+        {
+          path: '/digital',
+          name: 'digital',
+          component: () => import('@/views/digital/index.vue')
+        },
+        {
+          path: '/sentiment',
+          name: 'sentiment',
+          component: () => import('@/views/sentiment/index.vue')
+        }
+      ]
     }
   ]
 })

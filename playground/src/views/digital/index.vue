@@ -45,7 +45,7 @@
         <div class="result-display" v-if="prediction !== null">
           <span class="number">{{ prediction }}</span>
           <div class="confidence">
-            可信度: {{ confidence.toFixed(2) }}%
+            可信度: {{ (confidence * 100).toFixed(2) }}%
           </div>
         </div>
       </div>
@@ -67,7 +67,7 @@ export default {
       prediction: null,
       confidence: 0,
       canPredict: false,
-      modelPath: '', // 新增的 data 属性
+      modelPath: 'mnist.onnx', // 新增的 data 属性
     }
   },
   async mounted() {

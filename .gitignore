@@ -3,3 +3,5 @@
 *.iml
 *.onnx
 /**/runs/**
+/**/*.bz2
+/**/datasets/**

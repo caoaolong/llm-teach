@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.16.2"
-app = marimo.App(width="medium", app_title="LLMs")
+app = marimo.App(width="medium", app_title="LLMs-处理文本数据")
 
 with app.setup(hide_code=True):
     # Initialization code that runs before all other cells
@@ -12,6 +12,8 @@ with app.setup(hide_code=True):
 def _():
     mo.md(
         r"""
+    参考项目: [LLMs-from-scratch](https://github.com/rasbt/LLMs-from-scratch)
+
     # 1.处理问本数据
 
     > 本章介绍数据准备和采样，以便为 LLM 准备输入数据
@@ -25,7 +27,7 @@ def _():
 
     > 嵌入有很多种形式，这里我们主要介绍文本嵌入
 
-    ![1-2](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/1-02.svg)
+    ![1-2](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/1-2.svg)
 
     /// details | :fire: 什么是*Embedding*
         type: info
@@ -266,7 +268,7 @@ def _(re, vocab):
     return (tokenizer_v1,)
 
 
-@app.cell(disabled=True, hide_code=True)
+@app.cell(hide_code=True)
 def _():
     mo.md(
         r"""
@@ -384,9 +386,7 @@ def _(preprocessed):
 
 @app.cell(hide_code=True)
 def _():
-    mo.md(
-        r""":hammer: 接下来让我们完善一下 `SimpleTokenizerV1`，让它可以处理词表中不存在的单词。"""
-    )
+    mo.md(r""":hammer: 接下来让我们完善一下 `SimpleTokenizerV1`，让它可以处理词表中不存在的单词。""")
     return
 
 
@@ -423,9 +423,7 @@ def _(re, vocab_v2):
 
 @app.cell
 def _():
-    mo.md(
-        r""":hammer: 接下来让我们测试一下新的 `SimpleTokenizerV2`，看是否可以处理此表中不存在的单词。"""
-    )
+    mo.md(r""":hammer: 接下来让我们测试一下新的 `SimpleTokenizerV2`，看是否可以处理此表中不存在的单词。""")
     return
 
 
@@ -490,6 +488,11 @@ def _():
     return (tiktoken,)
 
 
+@app.cell
+def _():
+    return
+
+
 @app.cell(hide_code=True)
 def _():
     mo.md(
@@ -515,6 +518,8 @@ def _(tiktoken):
     gpt_token_ids = tokenizer.encode(
         text_gpt_test, allowed_special={"<|endoftext|>"}
     )
+
+
     gpt_decoded_text = tokenizer.decode(gpt_token_ids)
 
     mo.md(
@@ -691,7 +696,7 @@ def _(Counter, bpe_word_freqs, get_stats, merge_vocab):
 
     bpe_merge_slider = mo.ui.slider(
         start=0,
-        stop=10,
+        stop=20,
         step=1,
         show_value=True,
         label="合并次数",
@@ -1108,7 +1113,7 @@ def _():
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(torch):
     token_vocab_size = 50257
     token_output_dim = 256
@@ -1121,9 +1126,7 @@ def _(torch):
 
 @app.cell(hide_code=True)
 def _():
-    mo.md(
-        r""":fire: 如果我们从数据加载器中采样数据，我们会将每个批次中的标记嵌入到一个 256 维向量中。 假设批次大小为 8，每个批次包含 4 个标记，则会产生一个 $8 \times {4} \times {256}$ 的张量："""
-    )
+    mo.md(r""":fire: 如果我们从数据加载器中采样数据，我们会将每个批次中的标记嵌入到一个 256 维向量中。 假设批次大小为 8，每个批次包含 4 个标记，则会产生一个 $8 \times {4} \times {256}$ 的张量：""")
     return
 
 
@@ -1182,12 +1185,7 @@ def _(max_length, nn, token_output_dim, torch):
 
 @app.cell(hide_code=True)
 def _():
-    mo.md(
-        r"""
-    :rocket: 要创建 LLM 中使用的输入嵌入，我们只需添加标记和位置嵌入：
-
-    """
-    )
+    mo.md(r""":rocket: 要创建 LLM 中使用的输入嵌入，我们只需添加标记和位置嵌入：""")
     return
 
 

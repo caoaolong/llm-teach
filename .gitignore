@@ -6,3 +6,4 @@
 /**/*.bz2
 /**/datasets/**
 /**/~*.ipynb
+/**/__pycache__

@@ -5,3 +5,4 @@
 /**/runs/**
 /**/*.bz2
 /**/datasets/**
+/**/__pycache__

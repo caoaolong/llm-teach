@@ -1,5 +1,6 @@
 .venv
 .idea
+.vscode
 *.iml
 *.onnx
 /**/runs/**

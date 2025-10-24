@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.16.2"
+__generated_with = "0.17.0"
 app = marimo.App(width="medium", app_title="LLMs-编写注意力机制")
 
 with app.setup(hide_code=True):
@@ -1076,7 +1076,7 @@ def _():
 def _(attn_scores, context_length):
     mask = torch.triu(torch.ones(context_length, context_length), diagonal=1)
     masked = attn_scores.masked_fill(mask.bool(), -torch.inf)
-
+    print(mask)
     print(masked)
     mo.show_code()
     return (masked,)
@@ -1235,6 +1235,7 @@ def _():
 @app.cell(hide_code=True)
 def _(inputs):
     batch = torch.stack((inputs, inputs), dim=0)
+    print(inputs.shape)
     print(
         batch.shape
     )  # 2 inputs with 6 tokens each, and each token has embedding dimension 3
@@ -1535,7 +1536,7 @@ def _():
         f"""
 
     $a$ ({a.shape}): 
-    
+
     ```python
     {a}
     ```

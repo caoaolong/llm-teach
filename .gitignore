@@ -1,0 +1,12 @@
+.venv
+.idea
+.vscode
+*.iml
+*.onnx
+/**/runs/**
+/**/*.bz2
+/**/datasets/**
+/**/~*.ipynb
+/**/__pycache__
+minisoul/gpt2/
+minisoul/*.pth

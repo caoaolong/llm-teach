@@ -10,3 +10,4 @@
 /**/__pycache__
 minisoul/gpt2/
 minisoul/*.pth
+/**/__marimo__/

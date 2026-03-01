@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.19.9"
+__generated_with = "0.20.1"
 app = marimo.App(
     width="medium",
     app_title="LLMs-无标签数据训练GPT",
@@ -8,7 +8,7 @@ app = marimo.App(
 )
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     import marimo as mo
     import torch
@@ -29,24 +29,30 @@ def _(mo):
 
     本章涵盖的主题如下
 
-    ![](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/4-2.svg)
+    ![](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/4-02.svg)
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _():
-    from importlib.metadata import version
+    import importlib.metadata as _im
 
-    pkgs = [
+    _pkgs = [
         "matplotlib",
         "numpy",
         "tiktoken",
         "torch",
         "tensorflow",  # For OpenAI's pretrained weights
     ]
-    for p in pkgs:
-        print(f"{p} version: {version(p)}")
+    for _p in _pkgs:
+        try:
+            _v = _im.version(_p)
+        except _im.PackageNotFoundError:
+            _v = "not installed"
+        except Exception as _e:
+            _v = f"error: {_e.__class__.__name__}"
+        print(f"{_p} version: {_v}")
     return
 
 
@@ -154,7 +160,7 @@ def _(mo):
     + 下一小节将介绍用于计算生成输出的损失指标的指标，我们可以使用该指标来衡量训练进度
     + 下一章关于微调 LLM 还将介绍衡量模型质量的其他方法
 
-    ### 4.1.2 计算文本生成损失：交叉熵和困惑度
+    ### 4.1.2 交叉熵和困惑度
 
     > 假设我们有一个输入张量，其中包含 2 个训练示例（行）的`Token ID`，与输入相对应，目标包含我们希望模型生成的所需`Token ID`。
 
@@ -196,9 +202,18 @@ def _(inputs, mo, model, torch):
         logits, dim=-1
     )  # Probability of each token in vocabulary
     print(probas.shape)  # Shape: (batch_size, num_tokens, vocab_size)
-
     mo.show_code()
     return logits, probas
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ```python
+    probas.shape = [文本数, 位置数, 词表大小]
+    ```
+    """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -283,6 +298,87 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    :hammer: 这里我简单来解释一下
+
+    + 求概率分数的对数更简单是因为取对数不会改变最优解，因为对数函数是单调递增的，下面是一个 $y=ln(x)$ 的函数曲线。
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    def _():
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        # 生成自变量（对数函数定义域：x > 0）
+        x = np.linspace(0.1, 10, 400)
+
+        # 计算函数值 y = ln(x)
+        y = np.log(x)
+
+        # -------- 数值验证单调性 --------
+        # 计算相邻差值
+        diff = np.diff(y)
+
+        # 判断是否全部为正
+        is_increasing = np.all(diff > 0)
+        print("ln(x) 是否单调递增：", is_increasing)
+
+        # -------- 绘图 --------
+        plt.figure(figsize=(8, 5))
+        plt.plot(x, y, label="y = ln(x)")
+
+        # 选取两个点进行可视化比较
+        x1, x2 = 1, 3
+        y1, y2 = np.log(x1), np.log(x2)
+
+        plt.scatter([x1, x2], [y1, y2])
+        plt.vlines(
+            [x1, x2], ymin=min(y1, y2) - 0.5, ymax=[y1, y2], linestyles="dashed"
+        )
+        plt.hlines([y1, y2], xmin=0, xmax=[x1, x2], linestyles="dashed")
+
+        plt.text(x1, y1, f"({x1}, {y1:.2f})")
+        plt.text(x2, y2, f"({x2}, {y2:.2f})")
+
+        plt.title("ln(x) Figure")
+        plt.xlabel("x")
+        plt.ylabel("ln(x)")
+        plt.legend()
+        plt.grid(True)
+        return mo.mpl.interactive(plt.gcf())
+
+
+    _()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(rf"""
+    :cloud: 如果一个概率更大，它的对数也一定更大，所以：
+
+    + 最大化概率
+
+    + 最大化概率的对数
+
+    得到的最优参数完全相同。因此，取对数只是换了一种更好算的形式，不会改变结果。
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    :hammer: 接下来，我们计算平均对数概率：
+    """)
+    return
+
+
+@app.cell(hide_code=True)
 def _(mo, target_probas_1, target_probas_2, torch):
     # Compute logarithm of all token probabilities
     log_probas = torch.log(torch.cat((target_probas_1, target_probas_2)))
@@ -290,14 +386,6 @@ def _(mo, target_probas_1, target_probas_2, torch):
 
     mo.show_code()
     return (log_probas,)
-
-
-@app.cell
-def _(mo):
-    mo.md(r"""
-    :hammer: 接下来，我们计算平均对数概率：
-    """)
-    return
 
 
 @app.cell(hide_code=True)
@@ -571,7 +659,7 @@ def _(mo, train_loader, val_loader):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    :hammer: 接下来，我们实现一个效用函数来计算给定批次的交叉熵损失，此外，我们实现了第二个效用函数来计算数据加载器中用户指定批次数量的损失
+    :hammer: 接下来，我们实现一个函数来计算给定批次的交叉熵损失，此外，我们实现了第二个函数来计算数据加载器中用户指定批次数量的损失
     """)
     return
 

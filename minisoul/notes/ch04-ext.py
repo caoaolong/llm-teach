@@ -1,19 +1,20 @@
 import marimo
 
-__generated_with = "0.17.2"
-app = marimo.App(css_file="custom.css")
+__generated_with = "0.20.1"
+app = marimo.App(app_title="预训练GPT2", css_file="custom.css")
 
 
 @app.cell
 def _():
     import marimo as mo
+
     return (mo,)
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    # 1. 预训练GPT
+    # 1. 预训练GPT2
 
     ## 1.1. Gutenberg Dataset
     > Project Gutenberg 是全球最早、最大的免费电子书库之一，包含数万本已进入公共领域的文学作品（小说、戏剧、散文、诗歌等）。
@@ -459,7 +460,7 @@ def _(mo):
     mo.md(r"""
     :fire: 如果你暂时不便去进行训练，或者只想了解以下最终的效果可以使用我已经训练好的模型。
 
-    + ModelScope: [:link: caoaolong/minisoul](https://modelscope.cn/datasets/caoaolong/minisoul)
+    + ModelScope: [:link: caoaolong/minisoul](https://modelscope.cn/models/caoaolong/minisoul)
     + Huggingface: [:link: caoaolong/minisoul](https://huggingface.co/caoaolong/minisoul)
     """)
     return

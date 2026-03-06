@@ -839,12 +839,31 @@ def _(
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    | 参数            | 作用            |
+    | ------------- | ------------- |
+    | model         | 要训练的模型（如GPT）  |
+    | train_loader  | 训练数据          |
+    | val_loader    | 验证数据          |
+    | optimizer     | 优化器（如Adam）    |
+    | device        | GPU/CPU       |
+    | num_epochs    | 训练轮数          |
+    | eval_freq     | 每多少step评估一次   |
+    | eval_iter     | 每次评估用多少个batch |
+    | start_context | 生成示例的起始文本     |
+    | tokenizer     | 分词器           |
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     :hammer: 现在，让我们使用上面定义的训练函数来训练 LLM：
     """)
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(
     device,
     mo,
@@ -953,7 +972,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(
     GPT_CONFIG_124M,
     device,
@@ -984,7 +1003,7 @@ def _(mo):
     mo.md(r"""
     :fire: 即使我们多次执行上述 `generate_text_simple` 函数，LLM 也始终会生成相同的输出。
 
-    > 现在我们引入两种概念，即所谓的解码策略，来改进 `generate_text_simple` 函数 `temperature scaling` 和 `top-k` 个采样。这将使模型能够控制生成文本的随机性和多样性。
+    > 现在我们引入两种概念，即所谓的解码策略，来改进 `generate_text_simple` 函数，即 `temperature scaling` 和 `top-k` 个采样。这将使模型能够控制生成文本的随机性和多样性。
 
     ### 4.3.1 温度缩放
 
@@ -1102,6 +1121,12 @@ def _(next_token_logits, torch):
 
 
 @app.cell
+def _(scaled_probas):
+    scaled_probas
+    return
+
+
+@app.cell
 def _(mo, plt, scaled_probas, temperatures, torch, vocab):
     # Plotting
     x_v2 = torch.arange(len(vocab))
@@ -1124,6 +1149,27 @@ def _(mo, plt, scaled_probas, temperatures, torch, vocab):
     plt.tight_layout()
     plt.savefig("temperature-plot.pdf")
     mo.mpl.interactive(plt.gcf())
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    “除以 T”会改变概率分布的关键在于：
+
+    **softmax 对“差距大小”非常敏感**
+
+    softmax公式：
+
+    $$
+    p_i = \frac{e^{z_i}}{\sum_j e^{z_j}}
+    $$
+
+    如果 logits 差距变大 → 指数放大 → 概率更尖锐
+    如果 logits 差距变小 → 指数接近 → 概率更均匀
+
+    而除以 T 正好在控制这个“差距”。
+    """)
     return
 
 
@@ -1308,7 +1354,7 @@ def _(mo, torch):
     return (generate,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(
     GPT_CONFIG_124M,
     device,
@@ -1327,8 +1373,8 @@ def _(
         idx=text_to_token_ids("Every effort moves you", tokenizer).to(device),
         max_new_tokens=15,
         context_size=GPT_CONFIG_124M["context_length"],
-        top_k=25,
-        temperature=1.4,
+        top_k=10,
+        temperature=1.2,
     )
 
     print("Output text:\n", token_ids_to_text(token_ids_v4, tokenizer))
@@ -1402,7 +1448,7 @@ def _(mo, model, optimizer, torch):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(GPTModel, GPT_CONFIG_124M, mo, model, torch):
     checkpoint = torch.load("model_and_optimizer.pth", weights_only=True)
 
@@ -1620,11 +1666,11 @@ def _(
 
     token_ids_v5 = generate(
         model=gpt,
-        idx=text_to_token_ids("Every effort moves you", tokenizer).to(device),
-        max_new_tokens=25,
+        idx=text_to_token_ids("Hello, This is ", tokenizer).to(device),
+        max_new_tokens=10,
         context_size=NEW_CONFIG["context_length"],
-        top_k=50,
-        temperature=1.5,
+        top_k=20,
+        temperature=0.8,
     )
 
     print("Output text:\n", token_ids_to_text(token_ids_v5, tokenizer))

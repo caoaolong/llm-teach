@@ -1,3 +1,28 @@
+# LLM-Zero-To-Hero
+
+大语言模型（LLM）从零到进阶的学习与实战仓库：包含系统化学习路线、配套笔记代码，以及基于《Build a Large Language Model From Scratch》的 GPT 实现与对话演示。
+
+---
+
+## 项目演示
+
+本仓库中的 **minisoul** 模块提供了一个基于 Chainlit 的对话式 Demo，使用从零实现并微调后的 GPT-2 模型，可进行简单对话与指令跟随（如主动语态转被动语态等）。
+
+![项目演示](example.png)
+
+*演示界面：用户与微调后的 GPT 模型对话，支持自我介绍、指令任务（如句式转换）与问答。*
+
+### 运行演示
+
+```bash
+cd minisoul
+chainlit run app.py
+```
+
+---
+
+## 学习路线总览
+
 ```mermaid
 mindmap
   root((LLM-Zero-To-Hero))
@@ -184,9 +209,20 @@ mindmap
 + 学习多模态（如 CLIP、DALL-E）
 + 开发自己的语言模型
 
-### 10. 参考资料
+### 10. 项目结构
+
+| 路径 | 说明 |
+|------|------|
+| `minisoul/` | 《Build a Large Language Model From Scratch》配套实现：GPT 模型代码、章节笔记与 Chainlit 对话 Demo |
+| `minisoul/app.py` | Chainlit 对话应用入口，加载微调后的 GPT-2 进行交互 |
+| `minisoul/notes/` | 各章节笔记与模型组件（如 `blocks.py`、`ch04.py`、`ch06.py` 等） |
+| `images/` | 学习路线与模型结构相关图示 |
+
+### 11. 参考资料
+
 [GitHub - mlabonne/llm-course: Course to get into Large Language Models (LLMs) with roadmaps and Colab notebooks.](https://github.com/mlabonne/llm-course)
 
-### 11. 数据集网站
+### 12. 数据集网站
+
 + UCI - https://archive.ics.uci.edu/
 + Kaggle - https://www.kaggle.com/datasets

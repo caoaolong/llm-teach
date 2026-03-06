@@ -11,3 +11,4 @@
 minisoul/gpt2/
 minisoul/*.pth
 /**/__marimo__/
+/**/.chainlit/

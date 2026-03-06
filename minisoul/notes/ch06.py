@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.20.1"
+__generated_with = "0.20.2"
 app = marimo.App(width="medium", app_title="LLMs-指令微调", css_file="custom.css")
 
 
@@ -77,7 +77,7 @@ def _(mo):
     print("Number of entries:", len(data))
 
     mo.show_code()
-    return (data,)
+    return data, json, requests
 
 
 @app.cell(hide_code=True)
@@ -587,7 +587,6 @@ def _(
 ):
     from torch.utils.data import DataLoader
 
-
     num_workers = 0
     batch_size = 8
 
@@ -730,7 +729,7 @@ def _(mo):
     load_weights_into_gpt(model, params)
     model.eval()
     mo.show_code()
-    return BASE_CONFIG, model
+    return BASE_CONFIG, CHOOSE_MODEL, model
 
 
 @app.cell(hide_code=True)
@@ -764,7 +763,7 @@ def _(BASE_CONFIG, input_text, mo, model, tokenizer):
     )
     generated_text = token_ids_to_text(token_ids, tokenizer)
     mo.show_code()
-    return (generated_text,)
+    return generate, generated_text, text_to_token_ids, token_ids_to_text
 
 
 @app.cell(hide_code=True)
@@ -875,6 +874,391 @@ def _(
     execution_time_minutes = (end_time - start_time) / 60
     print(f"Training completed in {execution_time_minutes:.2f} minutes.")
 
+    mo.show_code()
+    return num_epochs, tokens_seen, train_losses, val_losses
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    + 从上面的输出可以看出，模型训练效果良好，训练损失和验证损失值都在下降。
+    + 此外，从每个 epoch 后打印的响应文本可以看出，模型正确地将输入句子“The chef cooks the meal every day.”转换为被动语态“The meal is cook every day by the chef.”
+    + 最后，让我们看一下训练损失和验证损失曲线。
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo, num_epochs, tokens_seen, torch, train_losses, val_losses):
+    from blocks import plot_losses
+
+    # Alternatively:
+    # from llms_from_scratch.ch05 import plot_losses
+
+    epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))
+    mo.ui.matplotlib(
+        plot_losses(epochs_tensor, tokens_seen, train_losses, val_losses)
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    + 损失在第一个训练周期开始时急剧下降，这意味着模型开始快速学习。
+    + 大约在第一个训练周期左右，模型开始出现轻微的过拟合。
+
+    ## 6.7 提取和保存响应
+
+    【图17】
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(
+    BASE_CONFIG,
+    device,
+    format_input,
+    generate,
+    input_text,
+    mo,
+    model,
+    test_data,
+    text_to_token_ids,
+    token_ids_to_text,
+    tokenizer,
+    torch,
+):
+    torch.manual_seed(123)
+
+
+    for _entry in test_data[:3]:
+
+        _input_text = format_input(_entry)
+
+        _token_ids = generate(
+            model=model,
+            idx=text_to_token_ids(_input_text, tokenizer).to(device),
+            max_new_tokens=256,
+            context_size=BASE_CONFIG["context_length"],
+            eos_id=50256,
+        )
+        _generated_text = token_ids_to_text(_token_ids, tokenizer)
+        _response_text = (
+            _generated_text[len(_input_text) :]
+            .replace("### Response:", "")
+            .strip()
+        )
+
+        print(input_text)
+        print(f"\nCorrect response:\n>> {_entry['output']}")
+        print(f"\nModel response:\n>> {_response_text.strip()}")
+        print("-------------------------------------")
+
+    mo.show_code()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    + 根据测试集指令、给定响应和模型响应，我们可以看出模型表现相对较好。
+
+    + 第一道和最后一道指令的答案显然是正确的。
+
+    + 第二个答案比较接近；模型给出的答案是“积云”而不是“积雨云”（但是，请注意，积云可以发展成积雨云，而积雨云能够产生雷暴）。
+
+    + 最重要的是，我们可以看到模型评估不像上一章那样直接，上一章我们只需要计算正确垃圾邮件/非垃圾邮件类别标签的百分比即可获得分类准确率。
+
+    + 实际上，像聊天机器人这样的指令微调语言学习模型（LLM）是通过多种方法进行评估的。
+
+    + 简答题和多项选择题基准测试，例如 MMLU（“大规模多任务语言理解测量”，https://arxiv.org/abs/2009.03300://arxiv.org/abs/2009.03300），用于测试模型的知识。
+
+    + 将模型的人类偏好与其他语言学习模型进行比较，例如 LMSYS 聊天机器人竞技场（https://arena.Imsys.org）。
+
+    + 自动化对话基准测试，其中使用另一个 LLM（例如 GPT-4）来评估响应，例如 AlpacaEval (https://tatsu-lab.github.io/alpaca)
+
+    + 在下一节中，我们将使用类似于 `AlpacaEval` 的方法，并使用另一个 LLM 来评估我们模型的响应；但是，我们将使用我们自己的测试集，而不是使用公开可用的基准数据集
+
+    + 为此，我们将模型响应添加到 `test_data` 字典中，并将其保存为“instruction-data-with-response.json”文件以进行记录，以便我们可以在需要时在单独的 Python 会话中加载和分析它
+    """)
+    return
+
+
+@app.cell
+def _(
+    BASE_CONFIG,
+    device,
+    format_input,
+    generate,
+    json,
+    model,
+    test_data,
+    text_to_token_ids,
+    token_ids_to_text,
+    tokenizer,
+):
+    from tqdm import tqdm
+
+    for _i, _entry in tqdm(enumerate(test_data), total=len(test_data)):
+
+        _input_text = format_input(_entry)
+
+        _token_ids = generate(
+            model=model,
+            idx=text_to_token_ids(_input_text, tokenizer).to(device),
+            max_new_tokens=256,
+            context_size=BASE_CONFIG["context_length"],
+            eos_id=50256,
+        )
+        _generated_text = token_ids_to_text(_token_ids, tokenizer)
+        _response_text = (
+            _generated_text[len(_input_text) :]
+            .replace("### Response:", "")
+            .strip()
+        )
+        test_data[_i]["model_response"] = _response_text
+
+
+    with open("instruction-data-with-response.json", "w") as file:
+        json.dump(test_data, file, indent=4)  # "indent" for pretty-printing
+    return (tqdm,)
+
+
+@app.cell
+def _(test_data):
+    test_data[0]
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    :fire: 最后，我们还会保存模型，以备将来需要时使用。
+    """)
+    return
+
+
+@app.cell
+def _(CHOOSE_MODEL, model, torch):
+    import re
+
+    file_name = f"{re.sub(r'[ ()]', '', CHOOSE_MODEL) }-sft.pth"
+    torch.save(model.state_dict(), file_name)
+    print(f"Model saved as {file_name}")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 6.8 评估微调后的模型
+
+    【图18】
+
+    + 在本节中，我们使用另一个更大的LLM来自动评估微调后的LLM的响应。
+
+    + 具体来说，我们使用`Meta AI`开发的指令微调的80亿参数Llama 3模型，该模型可以通过ollama（https://ollama.com）在本地运行。
+
+    > [Ollama](https://ollama.com/)是一个高效运行LLM的应用程序。
+    >
+    > 它是llama.cpp（https://github.com/ggerganov/llama.cpp）的封装，llama.cpp使用纯C/C++实现LLM以最大限度地提高效率。
+
+    :fire: 请注意，它是一个用于使用LLM生成文本（推理）的工具，而不是用于训练或微调LLM的工具
+    """)
+    return
+
+
+@app.cell
+def _(mo):
+    import psutil
+
+
+    def check_if_running(process_name):
+        running = False
+        for proc in psutil.process_iter(["name"]):
+            if process_name in proc.info["name"]:
+                running = True
+                break
+        return running
+
+
+    ollama_running = check_if_running("ollama")
+
+    if not ollama_running:
+        raise RuntimeError("Ollama not running. Launch ollama before proceeding.")
+    print("Ollama running:", check_if_running("ollama"))
+    mo.show_code()
+    return
+
+
+@app.cell
+def _(json, mo):
+    _file_path = "instruction-data-with-response.json"
+
+    with open(_file_path, "r") as _file:
+        test_data_v2 = json.load(_file)
+
+
+    def _format_input(entry):
+        _instruction_text = (
+            f"Below is an instruction that describes a task. "
+            f"Write a response that appropriately completes the request."
+            f"\n\n### Instruction:\n{entry['instruction']}"
+        )
+
+        _input_text = f"\n\n### Input:\n{entry['input']}" if entry["input"] else ""
+
+        return _instruction_text + _input_text
+
+
+    mo.show_code()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    :cloud: 现在，除了之前使用的 ollama run 命令之外，我们还可以通过 Python 中的 REST API 使用以下函数与模型交互。在运行此笔记本中的后续单元格之前，请确保 ollama 仍在运行（之前的代码单元格应打印“Ollama running: True”）。接下来，运行以下代码单元格来查询模型。
+    """)
+    return
+
+
+@app.cell
+def _(json, mo, requests):
+    def query_model(
+        prompt,
+        _model="llama3",
+        # If you used OLLAMA_HOST=127.0.0.1:11435 ollama serve
+        # update the address from 11434 to 11435
+        url="http://localhost:11434/api/chat",
+    ):
+        # Create the data payload as a dictionary
+        data = {
+            "model": _model,
+            "messages": [{"role": "user", "content": prompt}],
+            "options": {  # Settings below are required for deterministic responses
+                "seed": 123,
+                "temperature": 0,
+                "num_ctx": 2048,
+            },
+        }
+
+        """
+        # Convert the dictionary to a JSON formatted string and encode it to bytes
+        payload = json.dumps(data).encode("utf-8")
+
+        # Create a request object, setting the method to POST and adding necessary headers
+        request = urllib.request.Request(
+            url,
+            data=payload,
+            method="POST"
+        )
+        request.add_header("Content-Type", "application/json")
+
+        # Send the request and capture the response
+        response_data = ""
+        with urllib.request.urlopen(request) as response:
+            # Read and decode the response
+            while True:
+                line = response.readline().decode("utf-8")
+                if not line:
+                    break
+                response_json = json.loads(line)
+                response_data += response_json["message"]["content"]
+
+        return response_data
+        """
+
+        # The book originally used the commented-out above, which is based
+        # on urllib. It works generally fine, but some readers reported
+        # issues with using urlib when using a (company) VPN.
+        # The code below uses the requests library, which doesn't seem
+        # to have these issues.
+
+        # Send the POST request
+        with requests.post(url, json=data, stream=True, timeout=30) as r:
+            r.raise_for_status()
+            response_data = ""
+            for line in r.iter_lines(decode_unicode=True):
+                if not line:
+                    continue
+                response_json = json.loads(line)
+                if "message" in response_json:
+                    response_data += response_json["message"]["content"]
+
+        return response_data
+
+
+    _model = "llama3"
+    result = query_model("What do Llamas eat?", _model)
+    print(result)
+    mo.show_code()
+    return (query_model,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    :cloud: 现在，使用我们上面定义的 `query_model` 函数，我们可以评估微调后的模型的响应；让我们用之前章节中提到的前 3 个测试集响应来测试一下。
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(format_input, mo, query_model, test_data):
+    for _entry in test_data[:3]:
+        prompt = (
+            f"Given the input `{format_input(_entry)}` "
+            f"and correct output `{_entry['output']}`, "
+            f"score the model response `{_entry['model_response']}`"
+            f" on a scale from 0 to 100, where 100 is the best score. "
+        )
+        print("\nDataset response:")
+        print(">>", _entry["output"])
+        print("\nModel response:")
+        print(">>", _entry["model_response"])
+        print("\nScore:")
+        print(">>", query_model(prompt))
+        print("\n-------------------------")
+    mo.show_code()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    :cloud: 正如我们所见，Llama 3 模型提供了合理的评估，即使模型并非完全正确，也会给予部分分数，正如我们从“积云”的答案中看到的那样。请注意，之前的提示会返回非常详细的评估结果；我们可以调整提示，使其生成 0 到 100 之间的整数响应（100 为最佳），以便计算模型的平均得分。
+    """)
+    return
+
+
+@app.cell
+def _(format_input, mo, query_model, test_data, tqdm):
+    def generate_model_scores(json_data, json_key, model="llama3"):
+        scores = []
+        for entry in tqdm(json_data, desc="Scoring entries"):
+            prompt = (
+                f"Given the input `{format_input(entry)}` "
+                f"and correct output `{entry['output']}`, "
+                f"score the model response `{entry[json_key]}`"
+                f" on a scale from 0 to 100, where 100 is the best score. "
+                f"Respond with the integer number only."
+            )
+            score = query_model(prompt, model)
+            try:
+                scores.append(int(score))
+            except ValueError:
+                print(f"Could not convert score: {score}")
+                continue
+
+        return scores
+
+
+    scores = generate_model_scores(test_data, "model_response")
+    print(f"Number of scores: {len(scores)} of {len(test_data)}")
+    print(f"Average score: {sum(scores)/len(scores):.2f}\n")
     mo.show_code()
     return
 

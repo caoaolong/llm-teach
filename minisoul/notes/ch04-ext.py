@@ -1,10 +1,10 @@
 import marimo
 
 __generated_with = "0.20.1"
-app = marimo.App(app_title="预训练GPT2", css_file="custom.css")
+app = marimo.App(width="medium", app_title="预训练GPT2", css_file="custom.css")
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     import marimo as mo
 

@@ -38,26 +38,26 @@ def _(mo):
     mo.md(r"""
     # 5.文本分类的微调
 
-    【图1】
+    ![【图1】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-1.svg)
 
     ## 5.1 不同类型的微调
 
     > 语言模型微调最常见的方法是`指令微调(instruction-finetuning)`和`分类微调(classification finetuning)`，本章主要介绍分类微调。
 
-    【图2】
+    ![【图2】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-2.svg)
 
     + 本章的主题是分类微调，如果您有机器学习背景，可能已经熟悉这个过程——例如，它类似于训练卷积神经网络来对手写数字进行分类。
     + 在分类微调中，我们为模型设定了特定数量的类别标签（例如，“垃圾邮件”和“非垃圾邮件”）。
     + 经过分类微调的模型只能预测它在训练过程中遇到的类别（例如，“垃圾邮件”或“非垃圾邮件”），而经过指令微调的模型通常可以执行多种任务。我们可以将分类微调的模型视为一个非常专业的模型。
     + 实际上，创建一个专业模型比创建一个可以在许多不同任务上表现良好的通用模型要容易得多。
 
-    【图3】
+    ![【图3】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-3.svg)
 
     ## 5.2 准备数据集
 
     > 我们使用包含垃圾短信和非垃圾短信的数据集来微调LLM模型，以对其进行分类。
 
-    【图4】
+    ![【图4】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-4.svg)
 
     [:link: 下载连接](https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip)
     """)
@@ -194,7 +194,7 @@ def _(mo):
     >
     > 这里为了保证数据的完整性我们选择选第二项。
 
-    【图1】
+    ![【图5】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-5.svg)
     """)
     return
 
@@ -310,7 +310,7 @@ def _(SpamDataset, mo, tokenizer, train_dataset):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    【图2】
+    ![【图6】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-6.svg)
 
     :fire: 接下来，我们使用数据集来实例化数据加载器，这与前面章节中创建数据加载器的过程类似。
     """)
@@ -398,7 +398,7 @@ def _(mo):
 
     > 在本节中，我们将初始化上一章中使用的预训练模型。
 
-    【图3】
+    ![【图3】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-7.svg)
     """)
     return
 
@@ -525,7 +525,7 @@ def _(mo):
 
     > 在本节中，我们将修改预训练的LLM模型，使其能够进行分类微调。
 
-    【图4】
+    ![【图8】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-8.svg)
 
     :rocket: 首先，让我们看一下模型架构。
     """)
@@ -586,7 +586,7 @@ def _(mo):
     + 理论上，只需训练输出层就足够了。
     + 但是大量的实验证明，微调额外的层可以显著提升性能。因此，我们也使最后一个 Transformer 模块以及连接最后一个 Transformer 模块和输出层的最终 LayerNorm 模块可训练。
 
-    【图5】
+    ![【图9】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-9.svg)
     """)
     return
 
@@ -650,7 +650,7 @@ def _(mo):
     + 如前几章所述，每个输入词元对应一个输出向量。
     + 由于我们向模型输入了一个包含 4 个输入词元的文本样本，因此输出由上述 4 个二维输出向量组成。
 
-    【图6】
+    ![【图10】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-10.svg)
 
     + 在之前的章节中我们讨论了注意力机制，它将每个输入词元与其他所有输入词元关联起来。
     + 还介绍了GPT类模型中使用的因果注意力掩码；该因果掩码使得当前词元只关注其当前位置和前一个位置的词元。
@@ -670,15 +670,15 @@ def _(mo, outputs):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    【图7】
+    ![【图11】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-11.svg)
 
     ## 5.6 计算分类损失和准确率
 
-    【图8】
+    ![【图12】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-12.svg)
 
     :fire: 在解释损失计算之前，我们先简要了解一下模型输出是如何转换为类别标签的。
 
-    【图9】
+    ![【图13】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-13.svg)
     """)
     return
 
@@ -937,7 +937,7 @@ def _(mo):
         + 我们现在跟踪的是训练样本的数量（`examples_seen`），而不是看到的词元数量；
         + 并且在每个 `epoch` 后计算准确率，而不是在每个 `epoch` 后打印示例文本。
 
-    【图10】
+    ![【图14】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-14.svg)
     """)
     return
 
@@ -1185,7 +1185,7 @@ def _(mo):
 
     ## 6.8 使用LLM作为垃圾邮件分类器
 
-    【图11】
+    ![【图15】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/5-15.svg)
 
     + 最后，让我们实际应用一下微调后的 GPT 模型。
     + 下面的 `classify_review` 函数实现了与我们之前实现的 `SpamDataset` 类似的预处理步骤。
@@ -1196,7 +1196,9 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo, torch):
-    def classify_review(text, model, tokenizer, device, max_length=None, pad_token_id=50256):
+    def classify_review(
+        text, model, tokenizer, device, max_length=None, pad_token_id=50256
+    ):
         model.eval()
 
         # Prepare inputs to the model
@@ -1206,29 +1208,34 @@ def _(mo, torch):
         # It didn't break the code but would have caused unnecessary truncation (to 768 instead of 1024)
 
         # Truncate sequences if they too long
-        input_ids = input_ids[:min(max_length, supported_context_length)]
+        input_ids = input_ids[: min(max_length, supported_context_length)]
         assert max_length is not None, (
             "max_length must be specified. If you want to use the full model context, "
             "pass max_length=model.pos_emb.weight.shape[0]."
         )
         assert max_length <= supported_context_length, (
             f"max_length ({max_length}) exceeds model's supported context length ({supported_context_length})."
-        )    
+        )
         # Alternatively, a more robust version is the following one, which handles the max_length=None case better
         # max_len = min(max_length,supported_context_length) if max_length else supported_context_length
         # input_ids = input_ids[:max_len]
-    
+
         # Pad sequences to the longest sequence
         input_ids += [pad_token_id] * (max_length - len(input_ids))
-        input_tensor = torch.tensor(input_ids, device=device).unsqueeze(0) # add batch dimension
+        input_tensor = torch.tensor(input_ids, device=device).unsqueeze(
+            0
+        )  # add batch dimension
 
         # Model inference
         with torch.no_grad():
-            logits = model(input_tensor)[:, -1, :]  # Logits of the last output token
+            logits = model(input_tensor)[
+                :, -1, :
+            ]  # Logits of the last output token
         predicted_label = torch.argmax(logits, dim=-1).item()
 
         # Return the classified result
         return "spam" if predicted_label == 1 else "not spam"
+
 
     mo.show_code()
     return (classify_review,)
@@ -1249,9 +1256,11 @@ def _(classify_review, device, mo, model, tokenizer, train_dataset):
         " selected to receive $1000 cash or a $2000 award."
     )
 
-    print(classify_review(
-        text_t1, model, tokenizer, device, max_length=train_dataset.max_length
-    ))
+    print(
+        classify_review(
+            text_t1, model, tokenizer, device, max_length=train_dataset.max_length
+        )
+    )
     mo.show_code()
     return
 
@@ -1263,9 +1272,11 @@ def _(classify_review, device, mo, model, tokenizer, train_dataset):
         " for dinner tonight? Let me know!"
     )
 
-    print(classify_review(
-        text_t2, model, tokenizer, device, max_length=train_dataset.max_length
-    ))
+    print(
+        classify_review(
+            text_t2, model, tokenizer, device, max_length=train_dataset.max_length
+        )
+    )
     mo.show_code()
     return
 
@@ -1294,7 +1305,9 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(device, mo, model, torch):
-    model_state_dict = torch.load("review_classifier.pth", map_location=device, weights_only=True)
+    model_state_dict = torch.load(
+        "review_classifier.pth", map_location=device, weights_only=True
+    )
     model.load_state_dict(model_state_dict)
     mo.show_code()
     return

@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.20.2"
+__generated_with = "0.20.1"
 app = marimo.App(width="medium", app_title="LLMs-指令微调", css_file="custom.css")
 
 
@@ -27,7 +27,7 @@ def _(mo):
     mo.md(r"""
     # 6. 指令微调模型
 
-    【图1】
+    ![【图1】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-1.svg)
 
     ## 6.1 指令微调简介
 
@@ -35,11 +35,11 @@ def _(mo):
     + 因此，预训练的LLM擅长文本补全，但不擅长遵循指令。
     + 本章我们将训练LLM更好地遵循指令。
 
-    【图2】
+    ![【图2】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-2.svg)
 
     + 本章涵盖的主题总结如下图所示。
 
-    【图3】
+    ![【图3】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-3.svg)
 
     ## 6.2 准备用于指令微调的数据集
     """)
@@ -116,7 +116,7 @@ def _(mo):
         + [Alpaca](https://crfm.stanford.edu/2023/03/13/alpaca.html)
         + [Phi-3](https://arxiv.org/abs/2404.14219)
 
-    【图4】
+    ![【图4】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-4.svg)
 
     + 本章采用 `Alpaca` 风格的提示符格式，这是最初用于指令微调的提示符模板。
     + 下面，我们将格式化传递给 LLM 的输入。
@@ -209,15 +209,15 @@ def _(mo):
     mo.md(r"""
     ## 6.3 将数据整理成训练批次
 
-    【图5】
+    ![【图5】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-5.svg)
 
     + 我们分几个步骤处理这个数据集批处理问题，如下图所示。
 
-    【图6】
+    ![【图6】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-6.svg)
 
     + 首先，我们实现一个 `InstructionDataset` 类，该类预先对数据集中的所有输入进行标记化，类似于上一章中的 `SpamDataset`。
 
-    【图7】
+    ![【图7】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-7.svg)
     """)
     return
 
@@ -278,7 +278,7 @@ def _(mo):
     + 在这里，我们采用更复杂的方法，开发一个自定义的“整理”函数，并将其传递给数据加载器。
     + 这个自定义的整理函数会将每个批次中的训练样本填充到相同长度（但不同批次的样本长度可以不同）。
 
-    【图8】
+    ![【图8】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-8.svg)
     """)
     return
 
@@ -331,12 +331,12 @@ def _(custom_collate_draft_1, mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    【图9】
+    ![【图9】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-9.svg)
 
     + 上面我们只返回了 LLM 的输入；然而，LLM 训练还需要目标值。
     + 与 LLM 预训练类似，目标值是将输入值向右平移一位，这样 LLM 就能学习预测下一个词元。
 
-    【图10】
+    ![【图10】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-10.svg)
     """)
     return
 
@@ -382,11 +382,11 @@ def _(mo):
     mo.md(r"""
     :fire: 接下来，我们引入 `ignore_index` 值，将所有填充标记 ID 替换为新值；此 `ignore_index` 的目的是让我们可以在损失函数中忽略填充值（稍后会详细介绍）。
 
-    【图11】
+    ![【图11】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-11.svg)
 
     + 具体来说，这意味着我们将对应于 50256 的令牌 ID 替换为 -100，如下所示。
 
-    【图12】
+    ![【图12】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-12.svg)
 
     > 此外，我们还引入了 `allowed_max_length` 参数，以便在需要限制样本长度时使用；如果您计划使用长度超过 GPT-2 模型支持的 1024 个 token 上下文大小的数据集，这将非常有用。
     """)
@@ -523,13 +523,13 @@ def _(mo):
     + 但是，我们不希望忽略第一个文本结束符（填充标记）（50256），因为它可以帮助 LLM 判断响应何时完成。
     + 在实践中，通常也会屏蔽与指令对应的目标标记 ID，如下图所示（建议读者在完成本章后进行练习）。
 
-    【图13】
+    ![【图13】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-13.svg)
 
     ## 6.4 创建指令数据加载器
 
     > 在本节中，我们使用 `InstructionDataset` 类和 `custom_collat_e_fn` 函数来实例化训练、验证和测试数据加载器。
 
-    【图14】
+    ![【图14】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-14.svg)
 
     + 之前自定义的 `custom_collat_e_fn` 函数的另一个改进之处在于，我们现在直接将数据移动到目标设备（例如 GPU），而不是在主训练循环中进行操作。
     + 这提高了效率，因为当我们将 `custom_collat_e_fn` 作为数据加载器的一部分时，它可以作为后台进程执行。
@@ -690,7 +690,7 @@ def _(mo):
     mo.md(r"""
     ## 6.5 加载预训练模型
 
-    【图15】
+    ![【图15】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-15.svg)
 
     > 然而，我们没有加载参数量最小的`1.24`亿参数模型，而是加载了参数量为`3.55`亿参数的中等版本，因为`1.24`亿参数的模型太小，无法通过指令微调获得定性上合理的结果。
     """)
@@ -791,7 +791,7 @@ def _(mo):
 
     ## 6.6 使用指令数据微调模型
 
-    【图16】
+    ![【图16】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-16.svg)
 
     :cloud: 我们可以重用之前章节中用到的所有损失计算和训练函数。
     """)
@@ -910,7 +910,7 @@ def _(mo):
 
     ## 6.7 提取和保存响应
 
-    【图17】
+    ![【图17】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-17.svg)
     """)
     return
 
@@ -1055,7 +1055,7 @@ def _(mo):
     mo.md(r"""
     ## 6.8 评估微调后的模型
 
-    【图18】
+    ![【图18】](https://codingsoul-images.tos-cn-beijing.volces.com/LLM/6-18.svg)
 
     + 在本节中，我们使用另一个更大的LLM来自动评估微调后的LLM的响应。
 

@@ -103,7 +103,7 @@ def _(data_file_path, mo):
         data_file_path, sep="\t", header=None, names=["Label", "Text"]
     )
 
-    mo.ui.data_editor(df)
+    mo.ui.dataframe(df)
     return df, pd
 
 
@@ -317,7 +317,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo, test_dataset, torch, train_dataset, val_dataset):
     from torch.utils.data import DataLoader
 
